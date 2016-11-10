@@ -3,28 +3,11 @@
 #include "../MyJumplist.h"
 #include <stdio.h>
 
-Jumplist *pList;
-
-MYJUMPLIST_API HRESULT MyJumplist_Init(LPCWSTR szAppId) {
+MYJUMPLIST_API HRESULT MyJumplist_SetTasks(LPCWSTR szAppId, MYJUMPLIST_TASK * pTasks, size_t nTasks) {
 	try {
-		pList = new Jumplist(szAppId ? szAppId : L"");
-	}
-	catch (AutoHR const &info) {
-		return info.GetHr();
-	}
-	return 0;
-}
-
-MYJUMPLIST_API void MyJumplist_Uninit() {
-	if (pList) { delete pList; }
-}
-
-MYJUMPLIST_API HRESULT MyJumplist_SetTasks(MYJUMPLIST_TASK * pTasks, size_t count) {
-	try {
-		if (!pList) { return ERROR_NOT_READY; }
-		pList->Tasks.Clear();
-		for (size_t i = 0; i < count; i++) {
-			pList->Tasks.Add(
+		Jumplist list(szAppId ? szAppId : L"");
+		for (size_t i = 0; i < nTasks; i++) {
+			list.Tasks.Add(
 				pTasks[i].isSeparator ?
 				JumplistTask().IsSeparator(TRUE) :
 				JumplistTask()
@@ -38,7 +21,7 @@ MYJUMPLIST_API HRESULT MyJumplist_SetTasks(MYJUMPLIST_TASK * pTasks, size_t coun
 				.SetShowCmd(pTasks[i].iShowCmd)
 			);
 		}
-		pList->Tasks.Commit();
+		list.Tasks.Commit();
 	}
 	catch (AutoHR const &info) {
 		return info.GetHr();

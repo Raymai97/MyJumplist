@@ -24,12 +24,6 @@ typedef struct {
 } MYJUMPLIST_TASK;
 
 MYJUMPLIST_API
-HRESULT MyJumplist_Init(LPCWSTR szAppId);
-
-MYJUMPLIST_API
-void MyJumplist_Uninit();
-
-MYJUMPLIST_API
-HRESULT MyJumplist_SetTasks(MYJUMPLIST_TASK *pTasks, size_t count);
+HRESULT MyJumplist_SetTasks(LPCWSTR szAppId, MYJUMPLIST_TASK *pTasks, size_t nTasks);
 
 #endif/*MYJUMPLIST_C_H*/
