@@ -7,6 +7,7 @@ MYJUMPLIST_API HRESULT MyJumplist_SetTasks(LPCWSTR szAppId, MYJUMPLIST_TASK * pT
 	try {
 		Jumplist list(szAppId ? szAppId : L"");
 		for (size_t i = 0; i < nTasks; i++) {
+			if (pTasks[i].isHidden) { continue; }
 			list.Tasks.Add(
 				pTasks[i].isSeparator ?
 				JumplistTask().IsSeparator(TRUE) :

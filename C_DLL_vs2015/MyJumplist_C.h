@@ -16,7 +16,7 @@
 #include <Windows.h>
 
 typedef struct {
-	BOOL isSeparator;
+	BOOL isHidden, isSeparator;
 	LPCWSTR szPath, szArgs, szIconPath;
 	LPCWSTR szTitle, szDesc, szWorkingDir;
 	int iIconIndex, iShowCmd;
