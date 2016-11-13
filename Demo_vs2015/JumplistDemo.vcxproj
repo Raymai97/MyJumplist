@@ -102,6 +102,9 @@
     <ClCompile Include="..\..\..\_ Mai%27s Lib\MyJumplist\Demo_vs2015\Program.cpp" />
     <ClCompile Include="..\..\..\_ Mai%27s Lib\MyJumplist\MyJumplist.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\_ Mai%27s Lib\MyJumplist\MyJumplist.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

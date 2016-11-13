@@ -25,34 +25,34 @@ public:
 
 	void AddIntoObjectCollection(IObjectCollection*) const;
 
-	void GetPath(LPWSTR, int, WIN32_FIND_DATAW *pfd, DWORD fFlags);
+	void GetPath(LPWSTR, int, WIN32_FIND_DATAW *pfd, DWORD fFlags) const;
 	JumplistTask & SetPath(LPCWSTR);
 
-	void GetArguments(LPWSTR, int);
+	void GetArguments(LPWSTR, int) const;
 	JumplistTask & SetArguments(LPCWSTR);
 
-	void GetIconLocation(LPWSTR, int, int *piIconIndex);
+	void GetIconLocation(LPWSTR, int, int *piIconIndex) const;
 	JumplistTask & SetIconLocation(LPCWSTR, int iIconIndex);
 
-	void GetTitle(LPWSTR, UINT);
+	void GetTitle(LPWSTR, UINT) const;
 	JumplistTask & SetTitle(LPCWSTR);
 
-	void GetDescription(LPWSTR, int);
+	void GetDescription(LPWSTR, int) const;
 	JumplistTask & SetDescription(LPCWSTR);
 
-	void GetWorkingDirectory(LPWSTR, int);
+	void GetWorkingDirectory(LPWSTR, int) const;
 	JumplistTask & SetWorkingDirectory(LPCWSTR);
 
-	void GetHotkey(WORD*);
+	void GetHotkey(WORD*) const;
 	JumplistTask & SetHotkey(WORD);
 
-	void GetShowCmd(int*);
+	void GetShowCmd(int*) const;
 	JumplistTask & SetShowCmd(int);
 
-	void GetIDList(PIDLIST_ABSOLUTE*);
+	void GetIDList(PIDLIST_ABSOLUTE*) const;
 	JumplistTask & SetIDList(PCIDLIST_ABSOLUTE);
 
-	BOOL IsSeparator();
+	BOOL IsSeparator() const;
 	JumplistTask & IsSeparator(BOOL);
 };
 
@@ -73,8 +73,8 @@ public:
 		void Add(JumplistTask const &);
 		void Clear();
 		void Commit();
-		void GetAt(UINT, JumplistTask*);
-		UINT GetCount();
+		void GetAt(UINT, JumplistTask*) const;
+		UINT GetCount() const;
 		void RemoveAt(UINT);
 	} Tasks;
 
