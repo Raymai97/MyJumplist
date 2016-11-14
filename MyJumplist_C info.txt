@@ -1,0 +1,28 @@
+(1) At minimum, a valid MYJUMPLIST_ITEM must set szTitle and szPath, except
+when its isSeparator is set to TRUE.
+
+(2) MYJUMPLIST_GROUP can represent 4 types of group.
+
+The first two types are Recent and Frequent.
+To make them show up, make sure
+* your application is registered to handle a certain file type
+* you call SHAddToRecentDocs() when opening file / use IFileDialog
+* user doesn't disable the "show recent items on Jumplist" setting
+As for the differences between them, you may find it on MSDN.
+
+The third type is Unnamed Tasks.
+This type has the least limitation. It won't be affected by privacy settings.
+As long as the MYJUMPLIST_ITEM is valid, it should works as expected.
+PS: If there are too many tasks, some might not show up.
+This is by design, by Microsoft.
+
+The last one is Named Tasks.
+It works like Unnamed Tasks, but may be pinned/removed.
+If "show recent items on Jumplist" setting is disabled, it wouldn't be shown.
+When adding MYJUMPLIST_ITEM to this, please set szPath as well.
+Otherwise it may not be pinned/removed (seems like fixed in Win10).
+
+(3) When using MyJumplist_SetGroups(),
+* Any type of MYJUMPLIST_GROUP may be added only once.
+* If want to add Unnamed Tasks, it must be the last one.
+* Only the last group may contain separator(s).

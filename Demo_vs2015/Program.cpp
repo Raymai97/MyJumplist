@@ -3,6 +3,7 @@
 #include <wchar.h>
 #include <string>
 #include <sstream>
+#include <vector>
 #include "..\MyJumplist.h"
 #include "..\AutoHR.h"
 #include "..\AutoRelease.h"
@@ -20,6 +21,7 @@ enum MYID {
 };
 
 Jumplist jumplist(JUMPLIST_APP_ID);
+std::vector<JumplistTask> tasks;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void OnCommand(HWND, int, HWND, UINT);
@@ -92,37 +94,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM w, LPARAM l) {
 void OnCommand(HWND hWnd, int id, HWND, UINT) {
 	try {
 		if (id == BTN_UPDATE_JUMPLIST) {
-			jumplist.Tasks.Clear();
-			jumplist.Tasks.Add(
+			tasks.clear();
+			tasks.push_back(
 				JumplistTask()
-				.SetTitle(L"Command Prompt")
-				.SetDescription(L"Open command prompt")
-				.SetPath(L"C:\\Windows\\System32\\cmd.exe")
-				.SetIconLocation(L"C:\\Windows\\System32\\cmd.exe", 0)
-				.SetArguments(L"/k echo Opened by JumplistDemo")
+				.Title(L"Command Prompt")
+				.Desc(L"Open command prompt")
+				.IconPath(L"C:\\Windows\\System32\\cmd.exe")
+				.Path(L"C:\\Windows\\System32\\cmd.exe")
+				.Args(L"/k echo Opened by JumplistDemo")
 			);
-			jumplist.Tasks.Add(
+			tasks.push_back(
 				JumplistTask().IsSeparator(true)
 			);
-			jumplist.Tasks.Add(
+			tasks.push_back(
 				JumplistTask()
-				.SetTitle(L"About Windows")
-				.SetPath(L"C:\\Windows\\System32\\winver.exe")
-				.SetIconLocation(L"C:\\Windows\\explorer.exe", 0)
+				.Title(L"About Windows")
+				.Path(L"C:\\Windows\\System32\\winver.exe")
+				.IconPath(L"C:\\Windows\\explorer.exe")
 			);
-			jumplist.Tasks.Commit();
 		}
 		else if (id == BTN_CLEAR_JUMPLIST) {
-			jumplist.Tasks.Clear();
-			jumplist.Tasks.Commit();
+			tasks.clear();
 		}
 		else if (id == BTN_APPEND_JUMPLIST) {
-			jumplist.Tasks.Add(
+			tasks.push_back(
 				JumplistTask()
-				.SetTitle(L"Append item test")
+				.Title(L"Append item test")
 			);
-			jumplist.Tasks.Commit();
 		}
+		jumplist.Commit(tasks);
 		MessageBoxW(hWnd, L"Succeeded! Check the Jumplist now!", L"OK", MB_ICONINFORMATION);
 	}
 	catch (AutoHR const &info) {

@@ -2,6 +2,7 @@
 // kernel32.lib, user32.lib, shell32.lib, ole32.lib, uuid.lib, shlwapi.lib, Propsys.lib
 
 #pragma once
+#include <vector>
 #include <Windows.h>
 #include <WindowsX.h>
 #include <wchar.h>
@@ -14,68 +15,95 @@
 
 class Jumplist;
 class JumplistTask;
+class JumplistGroup;
 
 class JumplistTask {
-	IShellLinkW *m_psl{ nullptr };
+	bool m_isHidden, m_isSeparator;
+	std::wstring m_path, m_args, m_iconPath;
+	std::wstring m_title, m_desc, m_workingDir;
+	int m_iconIndex, m_showCmd;
+	WORD m_hotkey;
 
 public:
-	JumplistTask();
-	JumplistTask(IShellLinkW*);
-	~JumplistTask();
+	bool IsHidden() const;
+	JumplistTask & IsHidden(bool);
 
-	void AddIntoObjectCollection(IObjectCollection*) const;
+	bool IsSeparator() const;
+	JumplistTask & IsSeparator(bool);
 
-	void GetPath(LPWSTR, int, WIN32_FIND_DATAW *pfd, DWORD fFlags) const;
-	JumplistTask & SetPath(LPCWSTR);
+	std::wstring const & Path() const;
+	JumplistTask & Path(std::wstring const &);
 
-	void GetArguments(LPWSTR, int) const;
-	JumplistTask & SetArguments(LPCWSTR);
+	std::wstring const & Args() const;
+	JumplistTask & Args(std::wstring const &);
 
-	void GetIconLocation(LPWSTR, int, int *piIconIndex) const;
-	JumplistTask & SetIconLocation(LPCWSTR, int iIconIndex);
+	std::wstring const & IconPath() const;
+	JumplistTask & IconPath(std::wstring const &);
 
-	void GetTitle(LPWSTR, UINT) const;
-	JumplistTask & SetTitle(LPCWSTR);
+	std::wstring const & Title() const;
+	JumplistTask & Title(std::wstring const &);
 
-	void GetDescription(LPWSTR, int) const;
-	JumplistTask & SetDescription(LPCWSTR);
+	std::wstring const & Desc() const;
+	JumplistTask & Desc(std::wstring const &);
 
-	void GetWorkingDirectory(LPWSTR, int) const;
-	JumplistTask & SetWorkingDirectory(LPCWSTR);
+	std::wstring const & WorkingDir() const;
+	JumplistTask & WorkingDir(std::wstring const &);
 
-	void GetHotkey(WORD*) const;
-	JumplistTask & SetHotkey(WORD);
+	int IconIndex() const;
+	JumplistTask & IconIndex(int);
 
-	void GetShowCmd(int*) const;
-	JumplistTask & SetShowCmd(int);
+	int ShowCmd() const;
+	JumplistTask & ShowCmd(int);
 
-	void GetIDList(PIDLIST_ABSOLUTE*) const;
-	JumplistTask & SetIDList(PCIDLIST_ABSOLUTE);
+	WORD Hotkey() const;
+	JumplistTask & Hotkey(int);
+};
 
-	BOOL IsSeparator() const;
-	JumplistTask & IsSeparator(BOOL);
+class JumplistGroup {
+public:
+	enum class Types {
+		Tasks = 0,
+		Frequent = 1,
+		Recent = 2
+	};
+
+private:
+	bool m_isHidden{ false };
+	Types m_type{ Types::Tasks };
+	std::wstring m_name{ L"" };
+	std::vector<JumplistTask> m_tasks;
+
+public:
+	bool IsHidden() const;
+	JumplistGroup & IsHidden(bool);
+
+	Types GetType() const;
+	JumplistGroup & SetType(Types);
+
+	std::wstring GetName() const;
+	JumplistGroup & SetName(std::wstring);
+
+	// Method 1: .Tasks.push_back(the_task);
+	// Method 2: .Tasks(vector_of_tasks);
+	// Note: Don't pass by ref, we want copy.
+
+	std::vector<JumplistTask> & Tasks();
+	JumplistGroup & Tasks(std::vector<JumplistTask> tasks);
 };
 
 class Jumplist {
+	bool m_hadCommit{ false };
+	std::wstring const &m_appId;
+	ICustomDestinationList *m_pcdl{ nullptr };
+
+	HRESULT MakeShellLinkFromTask(JumplistTask const &, IShellLinkW**) const;
+
 public:
 	Jumplist(std::wstring const &appId = L"");
 	~Jumplist();
 
-	class Tasks {
-		bool m_hadCommit{ false };
-		std::wstring const &m_appId;
-		ICustomDestinationList *m_pcdl{ nullptr };
-		IObjectCollection *m_poc{ nullptr };
-	public:
-		Tasks(std::wstring const &appId);
-		~Tasks();
-
-		void Add(JumplistTask const &);
-		void Clear();
-		void Commit();
-		void GetAt(UINT, JumplistTask*) const;
-		UINT GetCount() const;
-		void RemoveAt(UINT);
-	} Tasks;
+	void Clear();
+	void Commit(std::vector<JumplistTask> const &);
+	void Commit(std::vector<JumplistGroup> const &);
 
 };
