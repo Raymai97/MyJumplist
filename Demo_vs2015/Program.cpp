@@ -25,6 +25,7 @@ std::vector<JumplistTask> tasks;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void OnCommand(HWND, int, HWND, UINT);
+void OnActivate(HWND, UINT, HWND, BOOL);
 
 int APIENTRY wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int nCmdShow) {
 	WNDCLASSEXW wcex = { 0 };
@@ -37,7 +38,7 @@ int APIENTRY wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int nCmdShow) {
 	if (!RegisterClassExW(&wcex)) { return 1; }
 	SetCurrentProcessExplicitAppUserModelID(JUMPLIST_APP_ID);
 
-	HWND hWnd = CreateWindowExW(0,
+	HWND hwnd = CreateWindowExW(0,
 		CLASS_NAME,
 		WND_TITLE,
 		WND_STYLE,
@@ -45,53 +46,58 @@ int APIENTRY wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int nCmdShow) {
 		600, 400,
 		nullptr, nullptr,
 		nullptr, nullptr);
-	if (!hWnd) { return 2; }
+	if (!hwnd) { return 2; }
 
 	CreateWindowExW(0,
 		L"BUTTON", L"Update Jumplist",
-		WS_VISIBLE | WS_CHILD,
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP,
 		20, 10, 200, 32,
-		hWnd, (HMENU)BTN_UPDATE_JUMPLIST,
+		hwnd, (HMENU)BTN_UPDATE_JUMPLIST,
 		nullptr, nullptr);
 
 	CreateWindowExW(0,
 		L"BUTTON", L"Clear Jumplist",
-		WS_VISIBLE | WS_CHILD,
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP,
 		20, 50, 200, 32,
-		hWnd, (HMENU)BTN_CLEAR_JUMPLIST,
+		hwnd, (HMENU)BTN_CLEAR_JUMPLIST,
 		nullptr, nullptr);
 
 	CreateWindowExW(0,
 		L"BUTTON", L"Append Jumplist",
-		WS_VISIBLE | WS_CHILD,
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP,
 		20, 90, 200, 32,
-		hWnd, (HMENU)BTN_APPEND_JUMPLIST,
+		hwnd, (HMENU)BTN_APPEND_JUMPLIST,
 		nullptr, nullptr);
 
-	ShowWindow(hWnd, nCmdShow);
+	ShowWindow(hwnd, nCmdShow);
 	MSG msg = { 0 };
 	while (GetMessageW(&msg, nullptr, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessageW(&msg);
+		if (!IsDialogMessage(hwnd, &msg)) {
+			TranslateMessage(&msg);
+			DispatchMessageW(&msg);
+		}
 	}
 	return 0;
 }
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM w, LPARAM l) {
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
 	switch (msg) {
+	case WM_ACTIVATE:
+		HANDLE_WM_ACTIVATE(hwnd, w, l, OnActivate);
+		break;
 	case WM_COMMAND:
-		HANDLE_WM_COMMAND(hWnd, w, l, OnCommand);
+		HANDLE_WM_COMMAND(hwnd, w, l, OnCommand);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	default:
-		return DefWindowProcW(hWnd, msg, w, l);
+		return DefWindowProcW(hwnd, msg, w, l);
 	}
 	return 0;
 }
 
-void OnCommand(HWND hWnd, int id, HWND, UINT) {
+void OnCommand(HWND hwnd, int id, HWND, UINT) {
 	try {
 		if (id == BTN_UPDATE_JUMPLIST) {
 			tasks.clear();
@@ -123,7 +129,7 @@ void OnCommand(HWND hWnd, int id, HWND, UINT) {
 			);
 		}
 		jumplist.Commit(tasks);
-		MessageBoxW(hWnd, L"Succeeded! Check the Jumplist now!", L"OK", MB_ICONINFORMATION);
+		MessageBoxW(hwnd, L"Succeeded! Check the Jumplist now!", L"OK", MB_ICONINFORMATION);
 	}
 	catch (AutoHR const &info) {
 		std::wstringstream ss;
@@ -131,6 +137,12 @@ void OnCommand(HWND hWnd, int id, HWND, UINT) {
 		ss << info.GetTaskName() << std::endl << std::endl;
 		ss << L"HRESULT: ";
 		ss << std::hex << std::uppercase << std::showbase << info.GetHr();
-		MessageBoxW(hWnd, ss.str().c_str(), L"Error!", MB_ICONERROR);
+		MessageBoxW(hwnd, ss.str().c_str(), L"Error!", MB_ICONERROR);
 	}
+}
+
+void OnActivate(HWND hwnd, UINT state, HWND, BOOL) {
+	static HWND hwndFocus{};
+	if (state == WA_INACTIVE) { hwndFocus = GetFocus(); }
+	else { SetFocus(hwndFocus); }
 }
